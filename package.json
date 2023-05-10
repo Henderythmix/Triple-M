@@ -1,0 +1,25 @@
+{
+  "name": "triple-m",
+  "version": "0.1.0",
+  "description": "A minimal markup language that transpiles to html",
+  "main": "lib/index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "node bin/mmmc -b",
+    "start": "node bin/mmmc",
+    "build": "tsc -b"
+  },
+  "files": ["bin", "lib", "README.md"],
+  "keywords": ["html", "cli", "compiler", "front-end", "language", "markup"],
+  "author": "Henderythmix",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.16.1",
+    "typescript": "^5.0.4"
+  },
+  "bin": {
+    "mmmc": "bin/mmmc"
+  }
+}
