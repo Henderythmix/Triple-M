@@ -1,6 +1,17 @@
-title ; : hello world
+title ; : Website Title
+// This is a Comment
+
+// These don't need extensions as it already assumes .js or .css
+SCRIPT js/script
+CSS css/style
 
 ---
 
-p ; : nice
-p data="this is a test" ; :
+nav .navbar :
+ a .navbar-brand : Example Page :D
+
+div .container :
+ h1 ; : Is there bootstrap installed in this page?
+ b ; : nope! but it's kinda funny I guess lol
+
+test

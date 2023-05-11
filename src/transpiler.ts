@@ -10,7 +10,7 @@ export namespace MMM {
         output: (args: string[]) => TranspileResponse
     }
 
-    export var CreatedMacros: Array<Macro> = [];
+    var CreatedMacros: Array<Macro> = [];
 
     export function CreateMacro(k: string, o: (args: string[]) => TranspileResponse) {
         CreatedMacros.push({key: k, output: o});
