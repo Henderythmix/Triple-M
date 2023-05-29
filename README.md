@@ -1,14 +1,13 @@
 <a href="https://www.npmjs.com/package/triple-m">
 <img src="https://badgen.net/npm/v/triple-m" />
 </a>
-<img src="https://badgen.net/badge/Typescript/v5.0.4/?icon=typescript&label?" />
 
 # Triple-M
 
 Triple-M (**M**inimal **M**arkup with **M**acros or **MMM**) is a markup language with the goal of simplifying the process of coding an html page by automating certain components like `<meta>` tags and fancy parameters and adding those in on the processing stage
 
 ## Usage
-to install the package:
+To install the package:
 ```sh
 npm install --save-dev triple-m
 ```
@@ -42,8 +41,8 @@ title ; : Website Title
 // This is a Comment
 
 // These don't need extensions as it already assumes .js or .css
-SCRIPT js/script
-CSS css/style
+SCRIPT js/script.js
+CSS css/style.css
 
 ---
 

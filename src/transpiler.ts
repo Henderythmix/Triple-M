@@ -44,7 +44,7 @@ export namespace MMM {
                 }
 
                 for (let i = 0; i < CreatedMacros.length; i++) {
-                    if (keys[j] == CreatedMacros[i].key) return CreatedMacros[i].output(keys)
+                    if (keys[j] == CreatedMacros[i].key) return CreatedMacros[i].output(keys.slice(indents));
                 }
 
                 // Check if there is a prebuilt Block for this key
