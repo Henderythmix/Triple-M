@@ -57,7 +57,7 @@ export namespace MMM {
                 
                 // Close the tags in one line
                 if (keys[j] == ";") {
-                    suffix = `<\/${tag}>`;
+                    suffix = `</${tag}>`;
                     Open = false;
                     continue
                 }
@@ -76,7 +76,7 @@ export namespace MMM {
 
                 // Appending Text
                 if (keys[j] == ":") {
-                    prefix += `${classes != "" ? ` class="${classes}"` : ""}${ids != "" ? ` id="${ids}"` : ""}>`;
+                    prefix += `${classes != "" ? ` class="${classes.substring(0, classes.length-1)}"` : ""}${ids != "" ? ` id="${ids.substring(0, ids.length-1)}"` : ""}>`;
                     ReadingStage = 2;
                     continue
                 }
@@ -167,9 +167,9 @@ export namespace MMM {
 
 // Creation of Basic Required Chunks
 MMM.CreateMacro("SCRIPT", (args: string[]) => {
-    return {output: `<script src="${args[1]}.js" type="text/javascript"></script>\n`}
+    return {output: `<script src="${args[1]}" type="text/javascript"></script>\n`}
 });
 
 MMM.CreateMacro("CSS", (args: string[]) => {
-    return {output: `<link rel="stylesheet" type="text/css" href="${args[1]}.css" />\n`}
+    return {output: `<link rel="stylesheet" type="text/css" href="${args[1]}" />\n`}
 });

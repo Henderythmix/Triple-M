@@ -2,8 +2,8 @@ title ; : Website Title
 // This is a Comment
 
 // These don't need extensions as it already assumes .js or .css
-SCRIPT js/script
-CSS css/style
+SCRIPT js/script.js
+CSS css/style.css
 
 ---
 
@@ -13,5 +13,3 @@ nav .navbar :
 div .container :
  h1 ; : Is there bootstrap installed in this page?
  b ; : nope! but it's kinda funny I guess lol
-
-test

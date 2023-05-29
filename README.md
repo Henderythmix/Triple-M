@@ -1,3 +1,8 @@
+<a href="https://www.npmjs.com/package/triple-m">
+<img src="https://badgen.net/npm/v/triple-m" />
+</a>
+<img src="https://badgen.net/badge/Typescript/v5.0.4/?icon=typescript&label?" />
+
 # Triple-M
 
 Triple-M (**M**inimal **M**arkup with **M**acros or **MMM**) is a markup language with the goal of simplifying the process of coding an html page by automating certain components like `<meta>` tags and fancy parameters and adding those in on the processing stage
@@ -59,3 +64,4 @@ npm install
 
 npm run build # builds the javascript files to run the compiler
 npm test # runs the compilation of the example folder
+```
