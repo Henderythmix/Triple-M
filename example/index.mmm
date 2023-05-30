@@ -1,9 +1,8 @@
 title ; : Website Title
 // This is a Comment
 
-// These don't need extensions as it already assumes .js or .css
-SCRIPT js/script.js
-CSS css/style.css
+// CSS already knows it's a stylesheet, and JS is recognized as a script
+CSS css/style.css EMBED
 
 ---
 

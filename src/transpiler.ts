@@ -1,3 +1,5 @@
+import * as fs from 'fs'; 
+
 export namespace MMM {
     export interface TranspileResponse {
         output: string;
@@ -166,10 +168,24 @@ export namespace MMM {
 }
 
 // Creation of Basic Required Chunks
-MMM.CreateMacro("SCRIPT", (args: string[]) => {
+MMM.CreateMacro("JS", (args: string[]) => {
+    if (args[2] == "EMBED") {
+        let script: string = fs.readFileSync(args[1], {encoding: "utf-8"});
+        return {output: `<script type="text/javascript"/>${script}</script>`};
+    }
     return {output: `<script src="${args[1]}" type="text/javascript"></script>\n`}
 });
 
 MMM.CreateMacro("CSS", (args: string[]) => {
+    if (args[2] == "EMBED") {
+        let script: string = fs.readFileSync(args[1], {encoding: "utf-8"});
+        return {output: `<style>${script}</style>`};
+    }
     return {output: `<link rel="stylesheet" type="text/css" href="${args[1]}" />\n`}
 });
+
+// MMM.CreateMacro("INPUT", (args: string[]) => {
+//     let classes: string = "";
+//     let ids: string = "";
+//     return {output: `<input />`}
+// });

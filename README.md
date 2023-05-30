@@ -1,6 +1,5 @@
-<a href="https://www.npmjs.com/package/triple-m">
-<img src="https://badgen.net/npm/v/triple-m" />
-</a>
+<a href="https://www.npmjs.com/package/triple-m"><img src="https://badgen.net/npm/v/triple-m" /></a>
+<img src="https://badgen.net/packagephobia/install/triple-m" />
 
 # Triple-M
 
@@ -36,14 +35,17 @@ There are also exception commands, but these are documented in the wiki, or can 
 
 ### Example
 Here is an example script:
-```
+```mmm
 title ; : Website Title
 // This is a Comment
 
-// These don't need extensions as it already assumes .js or .css
+// You do not need quotation marks when referring to a file
 SCRIPT js/script.js
-CSS css/style.css
+// You can even hard embed scripts directly into the html page with EMBED
+CSS css/style.css EMBED
 
+// the line below indicates that you are splitting between the head and body tags
+// If the line is there, then it will not create a full html file.
 ---
 
 nav .navbar :
@@ -53,6 +55,7 @@ div .container :
  h1 ; : Is there bootstrap installed in this page?
  b : nope! but it's kinda funny I guess lol
 ```
+For more documentation, you can go to the [wiki](https://github.com/Henderythmix/Triple-M/wiki)
 
 ## Development
 to setup the project on your desktop and develop, run these

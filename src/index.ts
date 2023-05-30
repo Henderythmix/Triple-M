@@ -77,7 +77,6 @@ if (process.argv.length == 2) {
         switch (ResponseMode) {
             case 0:
                 let files = findFileByExt(process.cwd(), "mmm");
-                console.log(files)
                 files.forEach((file) => {
                     //console.log(file.split('.'));
                     CompileFile(file, `${file.split('.')[0]}.html`);
