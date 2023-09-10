@@ -1,7 +1,7 @@
-const { MMM } = require("../lib/transpiler");
+const { MMM } = require("../lib/index");
 
 module.exports = function() {
     MMM.CreateMacro("test", () => {
-        
+        return {"output": "Test"};
     })
 }
