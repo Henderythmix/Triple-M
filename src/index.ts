@@ -1,90 +1,191 @@
 import * as fs from 'fs'; 
-import * as path from 'path';
-import { MMM } from './transpiler';
-import { argv, exit } from 'process';
 
-console.log(process.cwd() + "\\chunks.js")
-
-try {
-    const CreateChunks = require(process.cwd() + "\\chunks.js");
-    CreateChunks();
-} catch (err: any) {
-    //console.log(err)
-    if (err.code == 'MODULE_NOT_FOUND') {
-        console.warn("WARNING: You do not have a chunks.js file. You can add one to add custom chunks to the project to expand on the language's possibilities.")
-    } else {
-        console.error("Error in templates file:\n", err.message)
-        exit();
+export namespace MMM {
+    export interface CompileResponse {
+        output: string;
+        Log?: Array<string>;
+        Other?: any;
     }
-}
 
-const man: string = `
-${'\x1b[32m\x1b[1m'}  Triple-M - The Minimal Macro Markup Compiler${'\x1b[0m'}
- USAGE: mmmc [File] [Output]
-    OR: mmmc -[b]
-------------------------------------------------
--b | Builds all .mmm files
-`
-
-function CompileFile(f: string, o?: string) {
-    console.log("Compiling " + f);
-    let file: string = fs.readFileSync(f, {encoding: "utf-8"});
-    let output: MMM.TranspileResponse = MMM.TranspileFull(file);
-
-    if (output.Log?.length != 0) {
-        console.log(output.Log)
-    } else {
-        console.log("Compile Successful!");
-        fs.writeFileSync(o ? o : "index.html", output.output);
+    export interface Macro {
+        key: string,
+        output: (args: string[]) => CompileResponse
     }
-}
 
-const findFileByExt = (folderPath: string, ext: string): string[] => {
-    var files = fs.readdirSync(folderPath);
-    var result: any[] = [];
-    
-    files.forEach( 
-        function (file) {
-            var newbase = path.join(folderPath, file);
-            if ( fs.statSync(newbase).isDirectory() ){
-                result = result.concat(findFileByExt(newbase,ext))
-                //result = findFileByExt(newbase,ext,fs.readdirSync(newbase),result);
-            } else             {
-                if ( file.substr(-1*(ext.length+1)) == '.' + ext ){
-                    result.push(newbase);
-                } 
+    var CreatedMacros: Array<Macro> = [];
+
+    export function CreateMacro(k: string, o: (args: string[]) => CompileResponse) {
+        CreatedMacros.push({key: k, output: o});
+    }
+
+    // The most important function to the Compiler
+    // Please do not break :)
+    export function CompileLine(line: string, lineno?: number): CompileResponse {
+        let keys = line.split(" ");
+        //console.log(keys);
+        
+        let tag = keys[0];
+        let prefix: string = "";
+        let suffix: string = "";
+        let content: string = "";
+        let classes: string = "";
+        let ids: string = "";
+        let indents: number = 0;
+        let ReadingStage: number = 0;
+        let Open: boolean = true
+        
+        // Look at the first key to determine what to do with the line
+        
+        // Processing the rest of the keys
+        for (let j: number = 0; j < keys.length; j++) {
+            if (ReadingStage == 0) {
+                if (keys[0][0] == "/" && keys[0][1] == "/") return {output: ''};
+                if (keys[j] == '') {
+                    indents++;
+                    continue
+                }
+
+                for (let i = 0; i < CreatedMacros.length; i++) {
+                    if (keys[j] == CreatedMacros[i].key) return CreatedMacros[i].output(keys.slice(indents));
+                }
+
+                // Check if there is a prebuilt Block for this key
+
+                prefix += "<" + keys[j];
+                tag = keys[j];
+                ReadingStage = 1;
+
+            } else if (ReadingStage == 1) {
+                
+                // Close the tags in one line
+                if (keys[j] == ";") {
+                    suffix = `</${tag}>`;
+                    Open = false;
+                    continue
+                }
+
+                // Appending a Class
+                if (keys[j][0] == ".") {
+                    classes += keys[j].replace(".", '') + ' '
+                    continue;
+                }
+
+                // Appending an ID
+                if (keys[j][0] == "#") {
+                    ids += keys[j].replace("#", '') + ' '
+                    continue;
+                }
+
+                // Appending Text
+                if (keys[j] == ":") {
+                    prefix += `${classes != "" ? ` class="${classes.substring(0, classes.length-1)}"` : ""}${ids != "" ? ` id="${ids.substring(0, ids.length-1)}"` : ""}>`;
+                    ReadingStage = 2;
+                    continue
+                }
+                
+                // Otherwise
+                prefix += " "+keys[j];
+            } else {
+                if (j == keys.length-1) {
+                    content += keys[j];
+                    continue;
+                }
+                content += keys[j] + " ";
             }
         }
-    )
+        
+        // now the return. Lets report explicit cases first
+        if (ReadingStage == 1 ) return {output: "", Log: [`${lineno != null ? `Line ${lineno+1} - ` : ""}Missing ":" divider`]}
+        if (tag == "") return {output: ""}
 
-    return result;
-}
+        return {output: `${prefix}${content}${suffix}\n`, Other: {
+            Indents: indents, tag: tag, OpenElement: Open
+        }};
+    }
 
-// The actual execution
-if (process.argv.length == 2) {
-    console.log(man);
-} else if (process.argv.length == 3) {
-    if (process.argv[2][0] == "-") {
-        let ResponseMode = 0
-        for (let i=1; i < process.argv[2].length; i++) {
-            switch (process.argv[2][i]) {
-                case "b":
-                    console.log("Building all Files");
+    export function CompileFull(code : string) : CompileResponse {
+        let lines: Array<string> = code.split(/\r?\n/);;
+        let output: string = "";
+        let prefix: string = "";
+        let suffix: string = "";
+
+        let CompilerProcess = {
+            indentLevel: 0,
+            DivStack: <Array<string>>[]
+        }
+
+        var LogsTotal: string[] = []
+
+        // now look at each line, and process it as needed
+        for (let i: number = 0; i < lines.length; i++) {
+            if (lines[i] == "---") {
+                output += "</head><body>";
+                prefix = `<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <meta http-equiv="X-UA-Compatible" content="ie=edge" />`;
+                suffix = "</body></html>";
+                continue
             }
 
+            let res = CompileLine(lines[i], i)
+            if (res.Log) {
+                LogsTotal.push(res.Log[0])
+                continue
+            }
+
+            if (CompilerProcess.indentLevel > res.Other?.Indents) {
+                for (let j = CompilerProcess.indentLevel; j > res.Other.Indents; j--) {
+                    output += `</${CompilerProcess.DivStack.pop()}>`
+                    CompilerProcess.indentLevel--;
+                }
+            }
+            
+            if (res.Other?.OpenElement) {
+                CompilerProcess.indentLevel++;
+                CompilerProcess.DivStack.push(res.Other?.tag);
+            }
+
+            output += res.output;
         }
 
-        switch (ResponseMode) {
-            case 0:
-                let files = findFileByExt(process.cwd(), "mmm");
-                files.forEach((file) => {
-                    //console.log(file.split('.'));
-                    CompileFile(file, `${file.split('.')[0]}.html`);
-                })
+        // one last check
+        if (CompilerProcess.indentLevel > 0) {
+            for (let j = 0; j < CompilerProcess.indentLevel; j++) {
+                output += `</${CompilerProcess.DivStack.pop()}>`
+            }
         }
-    } else {
-        CompileFile(process.argv[2]);
+        
+        let response: CompileResponse = {
+            output: prefix + output + suffix,
+            Log: LogsTotal
+        }
+
+        return response;
     }
-} else if (process.argv.length == 4) {
-    CompileFile(process.argv[2], process.argv[3])
 }
+
+// Creation of Basic Required Chunks
+MMM.CreateMacro("JS", (args: string[]) => {
+    if (args[2] == "EMBED") {
+        let script: string = fs.readFileSync(args[1], {encoding: "utf-8"});
+        return {output: `<script type="text/javascript"/>${script}</script>`};
+    }
+    return {output: `<script src="${args[1]}" type="text/javascript"></script>\n`}
+});
+
+MMM.CreateMacro("CSS", (args: string[]) => {
+    if (args[2] == "EMBED") {
+        let script: string = fs.readFileSync(args[1], {encoding: "utf-8"});
+        return {output: `<style>${script}</style>`};
+    }
+    return {output: `<link rel="stylesheet" type="text/css" href="${args[1]}" />\n`}
+});
+
+// MMM.CreateMacro("INPUT", (args: string[]) => {
+//     let classes: string = "";
+//     let ids: string = "";
+//     return {output: `<input />`}
+// });
