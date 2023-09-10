@@ -1,6 +1,6 @@
 {
   "name": "triple-m",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A minimal markup language that transpiles to html",
   "main": "lib/index.js",
   "directories": {
